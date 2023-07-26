@@ -2,6 +2,9 @@ package lk.ijse.dep10;
 
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
 
+import javax.servlet.MultipartConfigElement;
+import javax.servlet.ServletRegistration;
+
 public class WebAppAppInitializer extends AbstractAnnotationConfigDispatcherServletInitializer {
     @Override
     protected Class<?>[] getRootConfigClasses() {
@@ -16,5 +19,11 @@ public class WebAppAppInitializer extends AbstractAnnotationConfigDispatcherServ
     @Override
     protected String[] getServletMappings() {
         return new String[]{"/"};
+    }
+    @Override
+    protected void customizeRegistration(ServletRegistration.Dynamic registration) {
+        var tempDir =System.getProperty("java.io.tmpdir");
+        MultipartConfigElement multipartConfigElement = new MultipartConfigElement(tempDir);
+        registration.setMultipartConfig(multipartConfigElement);
     }
 }
