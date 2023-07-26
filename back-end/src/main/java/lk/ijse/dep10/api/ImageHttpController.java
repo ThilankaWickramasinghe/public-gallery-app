@@ -60,8 +60,37 @@ public class ImageHttpController {
 
 
     }
+    @ResponseStatus(HttpStatus.OK)
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public List<String> postImage(@RequestPart("images") List<Part> imageFiles, UriComponentsBuilder uriComponentsBuilder){
+        List<String> imageUrlList =new ArrayList<>();
+        if(imageFiles!=null){
+            String imageDirPath = servletContext.getRealPath("/images");
+            for (Part imageFile : imageFiles) {
+                String imageFilePath = new File(imageDirPath, imageFile.getSubmittedFileName()).getAbsolutePath();
+                try{
+                    imageFile.write(imageFilePath);
+                    UriComponentsBuilder cloneBuilder = uriComponentsBuilder.cloneBuilder();
+                    String imagesLink = cloneBuilder.pathSegment("images", imageFile.getSubmittedFileName()).toUriString();
+                    imageUrlList.add(imagesLink);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    throw new RuntimeException(e);
+                }
+            }
+
+        }
+        return imageUrlList;
+    }
 
 
-
-
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @GetMapping("/delete")
+    public void deleteImage(@RequestParam(name = "q") String imageUrl){
+        imageUrl="images/"+imageUrl;
+        String realPath = servletContext.getRealPath(imageUrl);
+        File file = new File(realPath);
+        if(!file.exists()) return;
+        file.delete();
+    }
 }
